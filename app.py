@@ -76,7 +76,7 @@ ETF_FILE_5 = [
     "341850", "0086B0", "0086C0"
 ] # 원자재부동산통화[cite: 9]
 
-# 3. 전체 통합 ETF 리스트 (5개 파일의 중복 제거 합집합)
+# 3. 전체 통합 ETF 리스트
 ALL_ETFS = list(set(ETF_FILE_1 + ETF_FILE_2 + ETF_FILE_3 + ETF_FILE_4 + ETF_FILE_5))
 
 # --- UI 레이아웃 구성 ---
@@ -84,7 +84,6 @@ ALL_ETFS = list(set(ETF_FILE_1 + ETF_FILE_2 + ETF_FILE_3 + ETF_FILE_4 + ETF_FILE
 # 섹션 1: 전체 (주식+ETF) 스크리닝 영역
 st.subheader("📊 전체 종목 (주식 + ETF) 스크리너")
 col1, col2, col3, col4 = st.columns(4)
-
 with col1:
     btn_all = st.button("🚀 전체기간 (주식+ETF)", type="primary")
 with col2:
@@ -97,9 +96,8 @@ with col4:
 st.markdown("---")
 
 # 섹션 2: 전체 통합 ETF 전용 스크리닝 영역
-st.subheader("🎯 전체 ETF 통합 전용 스크리너 (5개 파일 전체 통합)")
+st.subheader("🎯 전체 ETF 통합 전용 스크리너")
 ecol1, ecol2, ecol3, ecol4 = st.columns(4)
-
 with ecol1:
     e_btn_all = st.button("🚀 전체기간 (통합ETF)")
 with ecol2:
@@ -111,20 +109,28 @@ with ecol4:
 
 st.markdown("---")
 
-# 섹션 3: 각 파일별 개별 검색 버튼 영역
-st.subheader("📂 파일별 개별 ETF 그룹 검색 (전체 기간 10~200일 기준)")
-fcol1, fcol2, fcol3, fcol4, fcol5 = st.columns(5)
+# 섹션 3: 파일별 개별 ETF 그룹 스크리너 영역 (기간별 버튼 추가)
+st.subheader("📂 파일별 개별 ETF 그룹 스크리너")
 
-with fcol1:
-    btn_f1 = st.button("📁 1. 국가별 대표지수")
-with fcol2:
-    btn_f2 = st.button("📁 2. 혁신성장테마")
-with fcol3:
-    btn_f3 = st.button("📁 3. 국가별 섹터")
-with fcol4:
-    btn_f4 = st.button("📁 4. 안전형인컴형")
-with fcol5:
-    btn_f5 = st.button("📁 5. 원자재·부동산·통화")
+def render_file_section(title, file_key):
+    st.markdown(f"**[{title}]**")
+    b1, b2, b3, b4 = st.columns(4)
+    with b1:
+        bt_all = st.button(f"🚀 전체기간", key=f"{file_key}_all")
+    with b2:
+        bt_short = st.button(f"⚡ 10·30일", key=f"{file_key}_short")
+    with b3:
+        bt_mid = st.button(f"🔍 50·100일", key=f"{file_key}_mid")
+    with b4:
+        bt_long = st.button(f"🐢 200일", key=f"{file_key}_long")
+    st.markdown("")
+    return bt_all, bt_short, bt_mid, bt_long
+
+f1_all, f1_short, f1_mid, f1_long = render_file_section("1. 국가별 대표지수", "f1")
+f2_all, f2_short, f2_mid, f2_long = render_file_section("2. 혁신성장테마", "f2")
+f3_all, f3_short, f3_mid, f3_long = render_file_section("3. 국가별 섹터", "f3")
+f4_all, f4_short, f4_mid, f4_long = render_file_section("4. 안전형인컴형", "f4")
+f5_all, f5_short, f5_mid, f5_long = render_file_section("5. 원자재·부동산·통화", "f5")
 
 
 # 공통 실행 함수
@@ -209,47 +215,75 @@ def run_screener(selected_periods, target_list, title_prefix):
     else:
         st.warning("조건을 만족하는 종목이 없습니다.")
 
-# 버튼 클릭 이벤트 분기 처리 (전체 주식+ETF)
+
+# --- 버튼 클릭 이벤트 분기 처리 ---
+
+# 전체 주식+ETF
 if btn_all:
-    st.info("전체 기간(10, 30, 50, 100, 200일) 주식+ETF 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], DOMESTIC_STOCKS, "전체 주식+ETF")
+    run_screener([10, 30, 50, 100, 200], DOMESTIC_STOCKS, "전체 주식+ETF (전체기간)")
 elif btn_short:
-    st.info("단기 집중(10일, 30일) 주식+ETF 스크리닝을 시작합니다.")
-    run_screener([10, 30], DOMESTIC_STOCKS, "단기 주식+ETF")
+    run_screener([10, 30], DOMESTIC_STOCKS, "전체 주식+ETF (단기)")
 elif btn_mid:
-    st.info("중기 집중(50일, 100일) 주식+ETF 스크리닝을 시작합니다.")
-    run_screener([50, 100], DOMESTIC_STOCKS, "중기 주식+ETF")
+    run_screener([50, 100], DOMESTIC_STOCKS, "전체 주식+ETF (중기)")
 elif btn_long:
-    st.info("장기 집중(200일) 주식+ETF 스크리닝을 시작합니다.")
-    run_screener([200], DOMESTIC_STOCKS, "장기 주식+ETF")
+    run_screener([200], DOMESTIC_STOCKS, "전체 주식+ETF (장기)")
 
-# 버튼 클릭 이벤트 분기 처리 (통합 ETF 전용)
+# 통합 ETF 전용
 elif e_btn_all:
-    st.info("전체 기간(10, 30, 50, 100, 200일) 통합 ETF 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], ALL_ETFS, "전체 통합 ETF")
+    run_screener([10, 30, 50, 100, 200], ALL_ETFS, "통합 ETF (전체기간)")
 elif e_btn_short:
-    st.info("단기 집중(10일, 30일) 통합 ETF 스크리닝을 시작합니다.")
-    run_screener([10, 30], ALL_ETFS, "단기 통합 ETF")
+    run_screener([10, 30], ALL_ETFS, "통합 ETF (단기)")
 elif e_btn_mid:
-    st.info("중기 집중(50일, 100일) 통합 ETF 스크리닝을 시작합니다.")
-    run_screener([50, 100], ALL_ETFS, "중기 통합 ETF")
+    run_screener([50, 100], ALL_ETFS, "통합 ETF (중기)")
 elif e_btn_long:
-    st.info("장기 집중(200일) 통합 ETF 스크리닝을 시작합니다.")
-    run_screener([200], ALL_ETFS, "장기 통합 ETF")
+    run_screener([200], ALL_ETFS, "통합 ETF (장기)")
 
-# 파일별 개별 검색 버튼 이벤트 (10~200일 전체 기간 기준)
-elif btn_f1:
-    st.info("1. 국가별 대표지수 ETF 그룹 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], ETF_FILE_1, "국가별 대표지수")
-elif btn_f2:
-    st.info("2. 혁신성장테마 ETF 그룹 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], ETF_FILE_2, "혁신성장테마")
-elif btn_f3:
-    st.info("3. 국가별 섹터 ETF 그룹 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], ETF_FILE_3, "국가별 섹터")
-elif btn_f4:
-    st.info("4. 안전형인컴형 ETF 그룹 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], ETF_FILE_4, "안전형인컴형")
-elif btn_f5:
-    st.info("5. 원자재·부동산·통화 ETF 그룹 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200], ETF_FILE_5, "원자재·부동산·통화")
+# 파일 1: 국가별 대표지수
+elif f1_all:
+    run_screener([10, 30, 50, 100, 200], ETF_FILE_1, "국가별 대표지수 (전체기간)")
+elif f1_short:
+    run_screener([10, 30], ETF_FILE_1, "국가별 대표지수 (단기)")
+elif f1_mid:
+    run_screener([50, 100], ETF_FILE_1, "국가별 대표지수 (중기)")
+elif f1_long:
+    run_screener([200], ETF_FILE_1, "국가별 대표지수 (장기)")
+
+# 파일 2: 혁신성장테마
+elif f2_all:
+    run_screener([10, 30, 50, 100, 200], ETF_FILE_2, "혁신성장테마 (전체기간)")
+elif f2_short:
+    run_screener([10, 30], ETF_FILE_2, "혁신성장테마 (단기)")
+elif f2_mid:
+    run_screener([50, 100], ETF_FILE_2, "혁신성장테마 (중기)")
+elif f2_long:
+    run_screener([200], ETF_FILE_2, "혁신성장테마 (장기)")
+
+# 파일 3: 국가별 섹터
+elif f3_all:
+    run_screener([10, 30, 50, 100, 200], ETF_FILE_3, "국가별 섹터 (전체기간)")
+elif f3_short:
+    run_screener([10, 30], ETF_FILE_3, "국가별 섹터 (단기)")
+elif f3_mid:
+    run_screener([50, 100], ETF_FILE_3, "국가별 섹터 (중기)")
+elif f3_long:
+    run_screener([200], ETF_FILE_3, "국가별 섹터 (장기)")
+
+# 파일 4: 안전형인컴형
+elif f4_all:
+    run_screener([10, 30, 50, 100, 200], ETF_FILE_4, "안전형인컴형 (전체기간)")
+elif f4_short:
+    run_screener([10, 30], ETF_FILE_4, "안전형인컴형 (단기)")
+elif f4_mid:
+    run_screener([50, 100], ETF_FILE_4, "안전형인컴형 (중기)")
+elif f4_long:
+    run_screener([200], ETF_FILE_4, "안전형인컴형 (장기)")
+
+# 파일 5: 원자재·부동산·통화
+elif f5_all:
+    run_screener([10, 30, 50, 100, 200], ETF_FILE_5, "원자재·부동산·통화 (전체기간)")
+elif f5_short:
+    run_screener([10, 30], ETF_FILE_5, "원자재·부동산·통화 (단기)")
+elif f5_mid:
+    run_screener([50, 100], ETF_FILE_5, "원자재·부동산·통화 (중기)")
+elif f5_long:
+    run_screener([200], ETF_FILE_5, "원자재·부동산·통화 (장기)")
