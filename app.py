@@ -11,9 +11,9 @@ st.set_page_config(
 )
 
 st.title("📈 국내 주식 및 ETF 상대 강세(Relative Strength) 스크리너")
-st.markdown("원하는 분석 방식을 선택하여 코스피(KOSPI) 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
+st.markdown("원하는 분석 기간을 선택하여 코스피(KOSPI) 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
 
-# 내장된 종목 리스트 (국내개별기업 200 및 TIGER/KODEX ETF)
+# 내장된 종목 리스트 (국내개별기업 200[cite: 2] 및 TIGER/KODEX ETF[cite: 1])
 DOMESTIC_STOCKS = [
     "005930", "000660", "373220", "207940", "005380", "000270", "068270", "105560", "005490", "035420",
     "055550", "028260", "012330", "006400", "035720", "086790", "051910", "032830", "329180", "012450",
@@ -35,7 +35,7 @@ DOMESTIC_STOCKS = [
     "185750", "008930", "006280", "001060", "237690", "214390", "086430", "007570", "111770", "105630",
     "081660", "001680", "004370", "007310", "005300", "000080", "005180", "267980", "011210", "018880",
     "005850", "010690", "200880", "015750", "012200", "009900", "004410", "002350", "073240",
-    # TIGER & KODEX ETF 리스트
+    # TIGER & KODEX ETF 리스트[cite: 1]
     "102110", "229200", "091230", "396500", "465640", "485520", "305540", "446770", "435550", "477570",
     "480110", "091180", "138920", "143850", "226490", "458730", "285010", "091170", "102970", "139260",
     "139270", "371460", "381180", "157490", "295820", "228790", "192090", "139280", "139290", "139240",
@@ -48,18 +48,28 @@ DOMESTIC_STOCKS = [
     "139230", "229720", "285020", "285030", "389810", "435560", "117560", "289680", "244560", "295550"
 ]
 
-# 화면을 두 개의 컬럼으로 나누어 버튼 배치 (또는 세로로 배치)
-col1, col2 = st.columns(2)
+# 화면을 네 개의 컬럼으로 나누어 버튼 배치
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.subheader("전체 기간 스크리닝")
-    st.write("10일, 30일, 50일, 100일, 200일 **모든 기간**에서 코스피 대비 강세를 보인 종목을 찾습니다.")
-    btn_all = st.button("🚀 전체 기간(5개) 강세 종목 실행", type="primary")
+    st.subheader("전체 기간")
+    st.write("10~200일 **5개 전체** 강세")
+    btn_all = st.button("🚀 전체 기간 스크리닝", type="primary")
 
 with col2:
-    st.subheader("단기 집중 스크리닝")
-    st.write("최근 트렌드 파악을 위해 **10일, 30일** 두 기간 동안만 코스피 대비 강세를 보인 종목을 찾습니다.")
-    btn_short = st.button("⚡ 최근 10일·30일 단기 강세 종목 실행", type="secondary")
+    st.subheader("단기 집중")
+    st.write("최근 **10일, 30일** 강세")
+    btn_short = st.button("⚡ 10일·30일 스크리닝", type="secondary")
+
+with col3:
+    st.subheader("중기 집중")
+    st.write("중기 **50일, 100일** 강세")
+    btn_mid = st.button("🔍 50일·100일 스크리닝", type="secondary")
+
+with col4:
+    st.subheader("장기 집중")
+    st.write("장기 **200일** 단독 강세")
+    btn_long = st.button("🐢 200일 스크리닝", type="secondary")
 
 # 공통 실행 함수
 def run_screener(selected_periods):
@@ -104,7 +114,9 @@ def run_screener(selected_periods):
                     row_data = {'종목코드': code}
                     for p in selected_periods:
                         row_data[f'{p}일 초과수익'] = diffs[p]
-                    row_data['Recent_Score'] = diffs[10] # 정렬 기준 (10일 초과수익)
+                    # 정렬 기준 (가장 첫 번째 선택 기간의 초과수익률 기준 상위 정렬)
+                    sort_key = selected_periods[0]
+                    row_data['Recent_Score'] = diffs[sort_key]
                     results.append(row_data)
             except Exception:
                 pass
@@ -150,5 +162,13 @@ if btn_all:
     run_screener([10, 30, 50, 100, 200])
 
 elif btn_short:
-    st.info("단기 집중(최근 10일, 30일) 조건으로 스크리닝을 시작합니다.")
+    st.info("단기 집중(10일, 30일) 조건으로 스크리닝을 시작합니다.")
     run_screener([10, 30])
+
+elif btn_mid:
+    st.info("중기 집중(50일, 100일) 조건으로 스크리닝을 시작합니다.")
+    run_screener([50, 100])
+
+elif btn_long:
+    st.info("장기 집중(200일) 조건으로 스크리닝을 시작합니다.")
+    run_screener([200])
