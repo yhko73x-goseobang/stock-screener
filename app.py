@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📈 국내 및 미국 주식·ETF 상대 강세(Relative Strength) 스크리너 📈")
+st.title("📈 국내 및 미국 주식·ETF 상대 강세(Relative Strength) 스크리너")
 st.markdown("원하는 대상과 분석 기간을 선택하여 코스피, S&P 500, 나스닥 100 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
 
 # 1. 국내 전체 종목 리스트
@@ -37,7 +37,21 @@ DOMESTIC_STOCKS = [
     "005850", "010690", "200880", "015750", "012200", "009900", "004410", "002350", "073240"
 ]
 
-# 2. ETF 파일별 리스트
+# 한국 섹터 종목 리스트 (0.한국섹터종목번호.txt)
+SECTOR_ETFS = [
+    "102110", "229200", "091230", "396500", "465640", "485520", "305540", "446770", "435550", "477570", 
+    "480110", "091180", "138920", "143850", "226490", "458730", "285010", "091170", "102970", "139260", 
+    "139270", "371460", "381180", "157490", "295820", "228790", "192090", "139280", "139290", "139240", 
+    "139250", "138530", "102780", "139310", "292150", "364980", "161510", "211900", "143160", "228780", 
+    "228800", "228810", "381420", "448290", "435570", "266420", "157450", "226480", "226500", "226510", 
+    "069500", "229210", "091160", "469590", "305720", "453650", "469080", "477580", "091190", "117700", 
+    "244580", "091120", "102710", "117460", "091220", "266390", "266370", "117690", "117680", "117420", 
+    "117720", "117480", "117470", "244570", "102790", "138910", "287310", "289670", "211910", "105190", 
+    "228750", "228770", "228760", "228820", "438410", "381430", "445220", "403560", "396510", "431290", 
+    "139230", "229720", "285020", "285030", "389810", "435560", "117560", "289680", "244560", "295550"
+]
+
+# ETF 파일별 리스트
 ETF_FILE_1 = [
     "192090", "245360", "117690", "365040", "228820", "232080", "277650", "277640", "277630", "252000", 
     "292160", "292150", "289480", "310960", "310970", "102110", "166400", "289260", "289250", "0204S0", 
@@ -85,12 +99,12 @@ US_TOP_100 = [
     "SBUX", "GILD", "NKE", "BLK", "CCEP", "UNP", "LOW", "COP", "VRTX", "ADBE", 
     "SHOP", "PYPL", "DDOG", "ABNB", "DASH", "APP", "CEG", "LIN", "ADI", "HON", 
     "WDC", "STX", "MDT", "SNOW", "WDAY", "SNPS", "CDNS", "REGN", "MDLZ", "ISRG", "MCHP"
-] # 미국상위100대기업[cite: 13]
+]
 
 
 # --- UI 레이아웃 구성 ---
 
-st.subheader("📊 전체 국내 종목 (200 주식 + 50 ETF) 스크리너")
+st.subheader("📊 전체 국내 종목 (주식 + ETF) 스크리너")
 col1, col2, col3, col4 = st.columns(4)
 with col1: btn_all = st.button("🚀 전체기간 (주식+ETF)", type="primary")
 with col2: btn_short = st.button("⚡ 단기 10·30일 (주식+ETF)")
@@ -99,8 +113,18 @@ with col4: btn_long = st.button("🐢 장기 200일 (주식+ETF)")
 
 st.markdown("---")
 
+# 📊 한국 섹터 종목 스크리너 추가
+st.subheader("📊 한국 섹터 종목 스크리너")
+sec_col1, sec_col2, sec_col3, sec_col4 = st.columns(4)
+with sec_col1: sec_btn_all = st.button("🚀 전체기간 (한국섹터)")
+with sec_col2: sec_btn_short = st.button("⚡ 단기 10·30일 (한국섹터)")
+with sec_col3: sec_btn_mid = st.button("🔍 중기 50·100일 (한국섹터)")
+with sec_col4: sec_btn_long = st.button("🐢 장기 200일 (한국섹터)")
+
+st.markdown("---")
+
 # 미국 상위 100대 기업 스크리너 세션 (S&P 500 및 나스닥 100 기준)
-st.subheader("📊🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
+st.subheader("🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
 
 st.markdown("**[S&P 500 지수 대비 강세 종목]**")
 us1_all, us1_short, us1_mid, us1_long = st.columns(4)
@@ -128,7 +152,7 @@ with ecol4: e_btn_long = st.button("🐢 장기 200일 (통합ETF)")
 
 st.markdown("---")
 
-st.subheader("📂 테마별 개별 ETF 그룹 스크리너")
+st.subheader("📂 파일별 개별 ETF 그룹 스크리너")
 def render_file_section(title, file_key):
     st.markdown(f"**[{title}]**")
     b1, b2, b3, b4 = st.columns(4)
@@ -239,6 +263,12 @@ if btn_all: run_screener([10, 30, 50, 100, 200], DOMESTIC_STOCKS, "전체 주식
 elif btn_short: run_screener([10, 30], DOMESTIC_STOCKS, "전체 주식+ETF (단기)", 'KS11')
 elif btn_mid: run_screener([50, 100], DOMESTIC_STOCKS, "전체 주식+ETF (중기)", 'KS11')
 elif btn_long: run_screener([200], DOMESTIC_STOCKS, "전체 주식+ETF (장기)", 'KS11')
+
+# 한국 섹터 종목
+elif sec_btn_all: run_screener([10, 30, 50, 100, 200], SECTOR_ETFS, "한국 섹터 종목 (전체기간)", 'KS11')
+elif sec_btn_short: run_screener([10, 30], SECTOR_ETFS, "한국 섹터 종목 (단기)", 'KS11')
+elif sec_btn_mid: run_screener([50, 100], SECTOR_ETFS, "한국 섹터 종목 (중기)", 'KS11')
+elif sec_btn_long: run_screener([200], SECTOR_ETFS, "한국 섹터 종목 (장기)", 'KS11')
 
 # 미국 상위 100대 기업 (S&P 500 대비: 'S&P500')
 elif us_sp_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs S&P 500 전체기간)", 'S&P500')
