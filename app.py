@@ -13,6 +13,11 @@ st.set_page_config(
 st.title("📈 국내 및 미국 주식·ETF 상대 강세(Relative Strength) 스크리너")
 st.markdown("원하는 대상과 분석 기간을 선택하여 코스피, S&P 500, 나스닥 100 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
 
+# --- 💡 결과 및 로딩바를 최상단에 보여주기 위한 컨테이너 ---
+result_container = st.container()
+
+st.markdown("---")
+
 # 1. 국내 전체 종목 리스트
 DOMESTIC_STOCKS = [
     "005930", "000660", "373220", "207940", "005380", "000270", "068270", "105560", "005490", "035420",
@@ -113,7 +118,6 @@ with col4: btn_long = st.button("🐢 장기 200일 (주식+ETF)")
 
 st.markdown("---")
 
-# 📊 한국 섹터 종목 스크리너 추가
 st.subheader("📊 한국 섹터 종목 스크리너")
 sec_col1, sec_col2, sec_col3, sec_col4 = st.columns(4)
 with sec_col1: sec_btn_all = st.button("🚀 전체기간 (한국섹터)")
@@ -170,90 +174,91 @@ f4_all, f4_short, f4_mid, f4_long = render_file_section("4. 안전형인컴형",
 f5_all, f5_short, f5_mid, f5_long = render_file_section("5. 원자재·부동산·통화", "f5")
 
 
-# 공통 실행 함수
+# 공통 실행 함수 (최상단 result_container 내부에 렌더링되도록 수정)
 def run_screener(selected_periods, target_list, title_prefix, market_ticker='KS11'):
-    max_p = max(selected_periods)
-    start_date = (datetime.now() - timedelta(days=max_p + 150)).strftime('%Y-%m-%d')
-    
-    with st.spinner(f"벤치마크({market_ticker}) 데이터 및 [{title_prefix}] 수익률을 분석 중입니다... 잠시만 기다려주세요."):
-        try:
-            df_market = fdr.DataReader(market_ticker, start_date)
-        except Exception:
-            st.error(f"벤치마크 지수({market_ticker}) 데이터를 가져오는 데 실패했습니다.")
-            return
+    with result_container:
+        max_p = max(selected_periods)
+        start_date = (datetime.now() - timedelta(days=max_p + 150)).strftime('%Y-%m-%d')
         
-        market_returns = {}
-        if not df_market.empty:
-            for p in selected_periods:
-                if len(df_market) > p:
-                    market_returns[p] = (df_market['Close'].iloc[-1] / df_market['Close'].iloc[-1 - p]) - 1
-                else:
-                    market_returns[p] = 0.0
-
-        results = []
-        unique_tickers = list(set(target_list))
-        
-        progress_bar = st.progress(0)
-        total_items = len(unique_tickers)
-        
-        for i, code in enumerate(unique_tickers):
+        with st.spinner(f"벤치마크({market_ticker}) 데이터 및 [{title_prefix}] 수익률을 분석 중입니다... 잠시만 기다려주세요."):
             try:
-                df = fdr.DataReader(code, start_date)
-                if len(df) < max_p:
-                    progress_bar.progress((i + 1) / total_items)
-                    continue
-                
-                diffs = {}
-                is_strong_all = True
-                for p in selected_periods:
-                    stock_ret = (df['Close'].iloc[-1] / df['Close'].iloc[-1 - p]) - 1
-                    market_ret = market_returns.get(p, 0.0)
-                    diff = stock_ret - market_ret
-                    diffs[p] = diff
-                    if stock_ret < market_ret:
-                        is_strong_all = False
-                
-                if is_strong_all:
-                    row_data = {'종목코드': code}
-                    for p in selected_periods:
-                        row_data[f'{p}일 초과수익'] = diffs[p]
-                    sort_key = selected_periods[0]
-                    row_data['Recent_Score'] = diffs[sort_key]
-                    results.append(row_data)
+                df_market = fdr.DataReader(market_ticker, start_date)
             except Exception:
-                pass
-            progress_bar.progress((i + 1) / total_items)
+                st.error(f"벤치마크 지수({market_ticker}) 데이터를 가져오는 데 실패했습니다.")
+                return
             
-        progress_bar.empty()
+            market_returns = {}
+            if not df_market.empty:
+                for p in selected_periods:
+                    if len(df_market) > p:
+                        market_returns[p] = (df_market['Close'].iloc[-1] / df_market['Close'].iloc[-1 - p]) - 1
+                    else:
+                        market_returns[p] = 0.0
 
-    if results:
-        df_result = pd.DataFrame(results)
-        df_result = df_result.sort_values(by='Recent_Score', ascending=False).reset_index(drop=True)
-        display_df = df_result.drop(columns=['Recent_Score'])
-        
-        ret_cols = [c for c in display_df.columns if c != '종목코드']
-        for col in ret_cols:
-            display_df[col] = display_df[col].apply(lambda x: f"{x*100:+.2f}%")
+            results = []
+            unique_tickers = list(set(target_list))
             
-        st.success(f"[{title_prefix}] 분석 완료! 총 {len(results)}개의 강세 종목이 발굴되었습니다.")
-        st.dataframe(display_df, use_container_width=True)
-        
-        txt_header = "종목코드\t" + "\t".join([f"{p}일초과" for p in selected_periods]) + "\n"
-        txt_content = txt_header
-        for _, row in df_result.iterrows():
-            line = f"{row['종목코드']}"
-            for p in selected_periods:
-                line += f"\t{row[f'{p}일 초과수익']*100:.2f}%"
-            txt_content += line + "\n"
+            progress_bar = st.progress(0)
+            total_items = len(unique_tickers)
             
-        st.download_button(
-            label="📥 강세종목.txt 다운로드",
-            data=txt_content,
-            file_name="강세종목.txt",
-            mime="text/plain"
-        )
-    else:
-        st.warning("조건을 만족하는 종목이 없습니다.")
+            for i, code in enumerate(unique_tickers):
+                try:
+                    df = fdr.DataReader(code, start_date)
+                    if len(df) < max_p:
+                        progress_bar.progress((i + 1) / total_items)
+                        continue
+                    
+                    diffs = {}
+                    is_strong_all = True
+                    for p in selected_periods:
+                        stock_ret = (df['Close'].iloc[-1] / df['Close'].iloc[-1 - p]) - 1
+                        market_ret = market_returns.get(p, 0.0)
+                        diff = stock_ret - market_ret
+                        diffs[p] = diff
+                        if stock_ret < market_ret:
+                            is_strong_all = False
+                    
+                    if is_strong_all:
+                        row_data = {'종목코드': code}
+                        for p in selected_periods:
+                            row_data[f'{p}일 초과수익'] = diffs[p]
+                        sort_key = selected_periods[0]
+                        row_data['Recent_Score'] = diffs[sort_key]
+                        results.append(row_data)
+                except Exception:
+                    pass
+                progress_bar.progress((i + 1) / total_items)
+                
+            progress_bar.empty()
+
+        if results:
+            df_result = pd.DataFrame(results)
+            df_result = df_result.sort_values(by='Recent_Score', ascending=False).reset_index(drop=True)
+            display_df = df_result.drop(columns=['Recent_Score'])
+            
+            ret_cols = [c for c in display_df.columns if c != '종목코드']
+            for col in ret_cols:
+                display_df[col] = display_df[col].apply(lambda x: f"{x*100:+.2f}%")
+                
+            st.success(f"[{title_prefix}] 분석 완료! 총 {len(results)}개의 강세 종목이 발굴되었습니다.")
+            st.dataframe(display_df, use_container_width=True)
+            
+            txt_header = "종목코드\t" + "\t".join([f"{p}일초과" for p in selected_periods]) + "\n"
+            txt_content = txt_header
+            for _, row in df_result.iterrows():
+                line = f"{row['종목코드']}"
+                for p in selected_periods:
+                    line += f"\t{row[f'{p}일 초과수익']*100:.2f}%"
+                txt_content += line + "\n"
+                
+            st.download_button(
+                label="📥 강세종목.txt 다운로드",
+                data=txt_content,
+                file_name="강세종목.txt",
+                mime="text/plain"
+            )
+        else:
+            st.warning("조건을 만족하는 종목이 없습니다.")
 
 
 # --- 버튼 클릭 이벤트 분기 처리 ---
