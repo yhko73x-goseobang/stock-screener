@@ -128,7 +128,7 @@ with ecol4: e_btn_long = st.button("🐢 장기 200일 (통합ETF)")
 
 st.markdown("---")
 
-st.subheader("📂 파일별 개별 ETF 그룹 스크리너")
+st.subheader("📂 테마별 개별 ETF 그룹 스크리너")
 def render_file_section(title, file_key):
     st.markdown(f"**[{title}]**")
     b1, b2, b3, b4 = st.columns(4)
