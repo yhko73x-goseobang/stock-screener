@@ -99,6 +99,26 @@ with col4: btn_long = st.button("🐢 장기 200일 (주식+ETF)")
 
 st.markdown("---")
 
+# 미국 상위 100대 기업 스크리너 세션 (S&P 500 및 나스닥 100 기준)
+st.subheader("🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
+
+st.markdown("**[S&P 500 지수 대비 강세 종목]**")
+us1_all, us1_short, us1_mid, us1_long = st.columns(4)
+with us1_all: us_sp_all = st.button("🚀 전체기간 (vs S&P500)", key="us_sp_all")
+with us1_short: us_sp_short = st.button("⚡ 10·30일 (vs S&P500)", key="us_sp_short")
+with us1_mid: us_sp_mid = st.button("🔍 50·100일 (vs S&P500)", key="us_sp_mid")
+with us1_long: us_sp_long = st.button("🐢 200일 (vs S&P500)", key="us_sp_long")
+
+st.markdown("")
+st.markdown("**[나스닥 100 지수 대비 강세 종목]**")
+us2_all, us2_short, us2_mid, us2_long = st.columns(4)
+with us2_all: us_nd_all = st.button("🚀 전체기간 (vs Nasdaq100)", key="us_nd_all")
+with us2_short: us_nd_short = st.button("⚡ 10·30일 (vs Nasdaq100)", key="us_nd_short")
+with us2_mid: us_nd_mid = st.button("🔍 50·100일 (vs Nasdaq100)", key="us_nd_mid")
+with us2_long: us_nd_long = st.button("🐢 200일 (vs Nasdaq100)", key="us_nd_long")
+
+st.markdown("---")
+
 st.subheader("🎯 전체 ETF 통합 전용 스크리너")
 ecol1, ecol2, ecol3, ecol4 = st.columns(4)
 with ecol1: e_btn_all = st.button("🚀 전체기간 (통합ETF)")
@@ -125,28 +145,8 @@ f3_all, f3_short, f3_mid, f3_long = render_file_section("3. 국가별 섹터", "
 f4_all, f4_short, f4_mid, f4_long = render_file_section("4. 안전형인컴형", "f4")
 f5_all, f5_short, f5_mid, f5_long = render_file_section("5. 원자재·부동산·통화", "f5")
 
-st.markdown("---")
 
-# 미국 상위 100대 기업 스크리너 세션 (S&P 500 및 나스닥 100 기준)
-st.subheader("🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
-
-st.markdown("**[S&P 500 지수 대비 강세 종목]**")
-us1_all, us1_short, us1_mid, us1_long = st.columns(4)
-with us1_all: us_sp_all = st.button("🚀 전체기간 (vs S&P500)", key="us_sp_all")
-with us1_short: us_sp_short = st.button("⚡ 10·30일 (vs S&P500)", key="us_sp_short")
-with us1_mid: us_sp_mid = st.button("🔍 50·100일 (vs S&P500)", key="us_sp_mid")
-with us1_long: us_sp_long = st.button("🐢 200일 (vs S&P500)", key="us_sp_long")
-
-st.markdown("")
-st.markdown("**[나스닥 100 지수 대비 강세 종목]**")
-us2_all, us2_short, us2_mid, us2_long = st.columns(4)
-with us2_all: us_nd_all = st.button("🚀 전체기간 (vs Nasdaq100)", key="us_nd_all")
-with us2_short: us_nd_short = st.button("⚡ 10·30일 (vs Nasdaq100)", key="us_nd_short")
-with us2_mid: us_nd_mid = st.button("🔍 50·100일 (vs Nasdaq100)", key="us_nd_mid")
-with us2_long: us_nd_long = st.button("🐢 200일 (vs Nasdaq100)", key="us_nd_long")
-
-
-# 공통 실행 함수 (market_ticker를 인자로 받아 코스피, S&P500, 나스닥100 등 유연하게 벤치마크 설정 가능)
+# 공통 실행 함수
 def run_screener(selected_periods, target_list, title_prefix, market_ticker='KS11'):
     max_p = max(selected_periods)
     start_date = (datetime.now() - timedelta(days=max_p + 150)).strftime('%Y-%m-%d')
@@ -240,6 +240,18 @@ elif btn_short: run_screener([10, 30], DOMESTIC_STOCKS, "전체 주식+ETF (단�
 elif btn_mid: run_screener([50, 100], DOMESTIC_STOCKS, "전체 주식+ETF (중기)", 'KS11')
 elif btn_long: run_screener([200], DOMESTIC_STOCKS, "전체 주식+ETF (장기)", 'KS11')
 
+# 미국 상위 100대 기업 (S&P 500 대비: 'S&P500')
+elif us_sp_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs S&P 500 전체기간)", 'S&P500')
+elif us_sp_short: run_screener([10, 30], US_TOP_100, "미국 상위 100 (vs S&P 500 단기)", 'S&P500')
+elif us_sp_mid: run_screener([50, 100], US_TOP_100, "미국 상위 100 (vs S&P 500 중기)", 'S&P500')
+elif us_sp_long: run_screener([200], US_TOP_100, "미국 상위 100 (vs S&P 500 장기)", 'S&P500')
+
+# 미국 상위 100대 기업 (나스닥 100 대비: '^NDX')
+elif us_nd_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 전체기간)", '^NDX')
+elif us_nd_short: run_screener([10, 30], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 단기)", '^NDX')
+elif us_nd_mid: run_screener([50, 100], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 중기)", '^NDX')
+elif us_nd_long: run_screener([200], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 장기)", '^NDX')
+
 # 통합 ETF 전용
 elif e_btn_all: run_screener([10, 30, 50, 100, 200], ALL_ETFS, "통합 ETF (전체기간)", 'KS11')
 elif e_btn_short: run_screener([10, 30], ALL_ETFS, "통합 ETF (단기)", 'KS11')
@@ -271,15 +283,3 @@ elif f5_all: run_screener([10, 30, 50, 100, 200], ETF_FILE_5, "원자재·부동
 elif f5_short: run_screener([10, 30], ETF_FILE_5, "원자재·부동산·통화 (단기)", 'KS11')
 elif f5_mid: run_screener([50, 100], ETF_FILE_5, "원자재·부동산·통화 (중기)", 'KS11')
 elif f5_long: run_screener([200], ETF_FILE_5, "원자재·부동산·통화 (장기)", 'KS11')
-
-# 미국 상위 100대 기업 (S&P 500 대비: 'S&P 500' 또는 'US500')
-elif us_sp_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs S&P 500 전체기간)", 'S&P 500')
-elif us_sp_short: run_screener([10, 30], US_TOP_100, "미국 상위 100 (vs S&P 500 단기)", 'S&P 500')
-elif us_sp_mid: run_screener([50, 100], US_TOP_100, "미국 상위 100 (vs S&P 500 중기)", 'S&P 500')
-elif us_sp_long: run_screener([200], US_TOP_100, "미국 상위 100 (vs S&P 500 장기)", 'S&P 500')
-
-# 미국 상위 100대 기업 (나스닥 100 대비: 'Nasdaq 100' 또는 'IXIC')
-elif us_nd_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 전체기간)", 'Nasdaq 100')
-elif us_nd_short: run_screener([10, 30], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 단기)", 'Nasdaq 100')
-elif us_nd_mid: run_screener([50, 100], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 중기)", 'Nasdaq 100')
-elif us_nd_long: run_screener([200], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 장기)", 'Nasdaq 100')
