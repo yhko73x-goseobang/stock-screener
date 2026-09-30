@@ -11,9 +11,9 @@ st.set_page_config(
 )
 
 st.title("📈 국내 주식 및 ETF 상대 강세(Relative Strength) 스크리너")
-st.markdown("코스피(KOSPI) 지수 대비 **10일, 30일, 50일, 100일, 200일** 동안 아웃퍼폼(초과 상승 또는 방어)한 종목을 발굴합니다.")
+st.markdown("원하는 분석 방식을 선택하여 코스피(KOSPI) 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
 
-# 내장된 종목 리스트 (국내개별기업 200[cite: 2] 및 TIGER/KODEX ETF[cite: 1])
+# 내장된 종목 리스트 (국내개별기업 200 및 TIGER/KODEX ETF)
 DOMESTIC_STOCKS = [
     "005930", "000660", "373220", "207940", "005380", "000270", "068270", "105560", "005490", "035420",
     "055550", "028260", "012330", "006400", "035720", "086790", "051910", "032830", "329180", "012450",
@@ -35,7 +35,7 @@ DOMESTIC_STOCKS = [
     "185750", "008930", "006280", "001060", "237690", "214390", "086430", "007570", "111770", "105630",
     "081660", "001680", "004370", "007310", "005300", "000080", "005180", "267980", "011210", "018880",
     "005850", "010690", "200880", "015750", "012200", "009900", "004410", "002350", "073240",
-    # TIGER & KODEX ETF 리스트[cite: 1]
+    # TIGER & KODEX ETF 리스트
     "102110", "229200", "091230", "396500", "465640", "485520", "305540", "446770", "435550", "477570",
     "480110", "091180", "138920", "143850", "226490", "458730", "285010", "091170", "102970", "139260",
     "139270", "371460", "381180", "157490", "295820", "228790", "192090", "139280", "139290", "139240",
@@ -48,18 +48,30 @@ DOMESTIC_STOCKS = [
     "139230", "229720", "285020", "285030", "389810", "435560", "117560", "289680", "244560", "295550"
 ]
 
-if st.button("🚀 스크리닝 실행하기", type="primary"):
-    periods = [10, 30, 50, 100, 200]
-    max_p = max(periods)
+# 화면을 두 개의 컬럼으로 나누어 버튼 배치 (또는 세로로 배치)
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("전체 기간 스크리닝")
+    st.write("10일, 30일, 50일, 100일, 200일 **모든 기간**에서 코스피 대비 강세를 보인 종목을 찾습니다.")
+    btn_all = st.button("🚀 전체 기간(5개) 강세 종목 실행", type="primary")
+
+with col2:
+    st.subheader("단기 집중 스크리닝")
+    st.write("최근 트렌드 파악을 위해 **10일, 30일** 두 기간 동안만 코스피 대비 강세를 보인 종목을 찾습니다.")
+    btn_short = st.button("⚡ 최근 10일·30일 단기 강세 종목 실행", type="secondary")
+
+# 공통 실행 함수
+def run_screener(selected_periods):
+    max_p = max(selected_periods)
     start_date = (datetime.now() - timedelta(days=max_p + 150)).strftime('%Y-%m-%d')
     
     with st.spinner("코스피 지수 데이터 및 종목별 수익률을 분석 중입니다... 잠시만 기다려주세요."):
-        # KOSPI 지수 데이터 로드
         df_kospi = fdr.DataReader('KS11', start_date)
         
         kospi_returns = {}
         if not df_kospi.empty:
-            for p in periods:
+            for p in selected_periods:
                 if len(df_kospi) > p:
                     kospi_returns[p] = (df_kospi['Close'].iloc[-1] / df_kospi['Close'].iloc[-1 - p]) - 1
                 else:
@@ -80,25 +92,20 @@ if st.button("🚀 스크리닝 실행하기", type="primary"):
                 
                 diffs = {}
                 is_strong_all = True
-                for p in periods:
+                for p in selected_periods:
                     stock_ret = (df['Close'].iloc[-1] / df['Close'].iloc[-1 - p]) - 1
                     market_ret = kospi_returns.get(p, 0.0)
                     diff = stock_ret - market_ret
                     diffs[p] = diff
-                    # 모든 기간에서 코스피보다 성과가 우수한 조건 적용 (원하실 경우 조건 수정 가능)
                     if stock_ret < market_ret:
                         is_strong_all = False
                 
                 if is_strong_all:
-                    results.append({
-                        '종목코드': code,
-                        '10일 초과수익': diffs[10],
-                        '30일 초과수익': diffs[30],
-                        '50일 초과수익': diffs[50],
-                        '100일 초과수익': diffs[100],
-                        '200일 초과수익': diffs[200],
-                        'Recent_Score': diffs[10] # 정렬 기준
-                    })
+                    row_data = {'종목코드': code}
+                    for p in selected_periods:
+                        row_data[f'{p}일 초과수익'] = diffs[p]
+                    row_data['Recent_Score'] = diffs[10] # 정렬 기준 (10일 초과수익)
+                    results.append(row_data)
             except Exception:
                 pass
             progress_bar.progress((i + 1) / total_items)
@@ -107,25 +114,26 @@ if st.button("🚀 스크리닝 실행하기", type="primary"):
 
     if results:
         df_result = pd.DataFrame(results)
-        # 가장 최근(10일 기준) 강한 종목이 위에 오도록 정렬
         df_result = df_result.sort_values(by='Recent_Score', ascending=False).reset_index(drop=True)
         
-        # 내부 정렬용 컬럼 제거 후 표시용 DataFrame 생성
         display_df = df_result.drop(columns=['Recent_Score'])
         
-        # 퍼센트 포맷팅 적용
-        for col in ['10일 초과수익', '30일 초과수익', '50일 초과수익', '100일 초과수익', '200일 초과수익']:
+        # 퍼센트 포맷팅
+        ret_cols = [c for c in display_df.columns if c != '종목코드']
+        for col in ret_cols:
             display_df[col] = display_df[col].apply(lambda x: f"{x*100:+.2f}%")
             
         st.success(f"분석 완료! 총 {len(results)}개의 강세 종목이 발굴되었습니다.")
-        
-        # 화면에 표 출력
         st.dataframe(display_df, use_container_width=True)
         
-        # 강세종목.txt 다운로드 버튼 생성
-        txt_content = "종목코드\t10일초과\t30일초과\t50일초과\t100일초과\t200일초과\n"
+        # 텍스트 파일 다운로드 구성
+        txt_header = "종목코드\t" + "\t".join([f"{p}일초과" for p in selected_periods]) + "\n"
+        txt_content = txt_header
         for _, row in df_result.iterrows():
-            txt_content += f"{row['종목코드']}\t{row['10일 초과수익']*100:.2f}%\t{row['30일 초과수익']*100:.2f}%\t{row['50일 초과수익']*100:.2f}%\t{row['100일 초과수익']*100:.2f}%\t{row['200일 초과수익']*100:.2f}%\n"
+            line = f"{row['종목코드']}"
+            for p in selected_periods:
+                line += f"\t{row[f'{p}일 초과수익']*100:.2f}%"
+            txt_content += line + "\n"
             
         st.download_button(
             label="📥 강세종목.txt 다운로드",
@@ -135,3 +143,12 @@ if st.button("🚀 스크리닝 실행하기", type="primary"):
         )
     else:
         st.warning("조건을 만족하는 종목이 없습니다.")
+
+# 버튼 클릭 이벤트 분기 처리
+if btn_all:
+    st.info("전체 기간(10, 30, 50, 100, 200일) 조건으로 스크리닝을 시작합니다.")
+    run_screener([10, 30, 50, 100, 200])
+
+elif btn_short:
+    st.info("단기 집중(최근 10일, 30일) 조건으로 스크리닝을 시작합니다.")
+    run_screener([10, 30])
