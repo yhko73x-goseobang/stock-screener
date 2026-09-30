@@ -100,7 +100,7 @@ with col4: btn_long = st.button("🐢 장기 200일 (주식+ETF)")
 st.markdown("---")
 
 # 미국 상위 100대 기업 스크리너 세션 (S&P 500 및 나스닥 100 기준)
-st.subheader("🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
+st.subheader("📊🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
 
 st.markdown("**[S&P 500 지수 대비 강세 종목]**")
 us1_all, us1_short, us1_mid, us1_long = st.columns(4)
