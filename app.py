@@ -11,9 +11,9 @@ st.set_page_config(
 )
 
 st.title("📈 국내 주식 및 ETF 상대 강세(Relative Strength) 스크리너")
-st.markdown("원하는 분석 기간을 선택하여 코스피(KOSPI) 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
+st.markdown("원하는 대상과 분석 기간을 선택하여 코스피(KOSPI) 지수 대비 아웃퍼폼한 종목 및 ETF를 발굴하세요.")
 
-# 내장된 종목 리스트 (국내개별기업 200[cite: 2] 및 TIGER/KODEX ETF[cite: 1])
+# 전체 종목 리스트 (국내개별기업 200[cite: 2] 및 TIGER/KODEX ETF[cite: 1])
 DOMESTIC_STOCKS = [
     "005930", "000660", "373220", "207940", "005380", "000270", "068270", "105560", "005490", "035420",
     "055550", "028260", "012330", "006400", "035720", "086790", "051910", "032830", "329180", "012450",
@@ -35,7 +35,7 @@ DOMESTIC_STOCKS = [
     "185750", "008930", "006280", "001060", "237690", "214390", "086430", "007570", "111770", "105630",
     "081660", "001680", "004370", "007310", "005300", "000080", "005180", "267980", "011210", "018880",
     "005850", "010690", "200880", "015750", "012200", "009900", "004410", "002350", "073240",
-    # TIGER & KODEX ETF 리스트[cite: 1]
+    # TIGER & KODEX ETF 리스트[cite: 1, 5]
     "102110", "229200", "091230", "396500", "465640", "485520", "305540", "446770", "435550", "477570",
     "480110", "091180", "138920", "143850", "226490", "458730", "285010", "091170", "102970", "139260",
     "139270", "371460", "381180", "157490", "295820", "228790", "192090", "139280", "139290", "139240",
@@ -48,35 +48,44 @@ DOMESTIC_STOCKS = [
     "139230", "229720", "285020", "285030", "389810", "435560", "117560", "289680", "244560", "295550"
 ]
 
-# 화면을 네 개의 컬럼으로 나누어 버튼 배치
+# ETF 전용 리스트 추출 (DOMESTIC_STOCKS 하단 100개 항목)
+ETF_STOCKS = DOMESTIC_STOCKS[200:]
+
+# 섹션 1: 전체 (주식+ETF) 스크리닝 영역
+st.subheader("📊 전체 종목 (주식 + ETF) 스크리너")
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.subheader("전체 기간")
-    st.write("10~200일 **5개 전체** 강세")
-    btn_all = st.button("🚀 전체 기간 스크리닝", type="primary")
-
+    btn_all = st.button("🚀 전체기간 (주식+ETF)", type="primary")
 with col2:
-    st.subheader("단기 집중")
-    st.write("최근 **10일, 30일** 강세")
-    btn_short = st.button("⚡ 10일·30일 스크리닝", type="secondary")
-
+    btn_short = st.button("⚡ 단기 10·30일 (주식+ETF)", type="secondary")
 with col3:
-    st.subheader("중기 집중")
-    st.write("중기 **50일, 100일** 강세")
-    btn_mid = st.button("🔍 50일·100일 스크리닝", type="secondary")
-
+    btn_mid = st.button("🔍 중기 50·100일 (주식+ETF)", type="secondary")
 with col4:
-    st.subheader("장기 집중")
-    st.write("장기 **200일** 단독 강세")
-    btn_long = st.button("🐢 200일 스크리닝", type="secondary")
+    btn_long = st.button("🐢 장기 200일 (주식+ETF)", type="secondary")
+
+st.markdown("---")
+
+# 섹션 2: ETF 전용 스크리닝 영역
+st.subheader("🎯 ETF 전용 스크리너 (TIGER / KODEX)")
+ecol1, ecol2, ecol3, ecol4 = st.columns(4)
+
+with ecol1:
+    e_btn_all = st.button("🚀 전체기간 (ETF 전용)")
+with ecol2:
+    e_btn_short = st.button("⚡ 단기 10·30일 (ETF 전용)")
+with ecol3:
+    e_btn_mid = st.button("🔍 중기 50·100일 (ETF 전용)")
+with ecol4:
+    e_btn_long = st.button("🐢 장기 200일 (ETF 전용)")
+
 
 # 공통 실행 함수
-def run_screener(selected_periods):
+def run_screener(selected_periods, target_list, title_prefix):
     max_p = max(selected_periods)
     start_date = (datetime.now() - timedelta(days=max_p + 150)).strftime('%Y-%m-%d')
     
-    with st.spinner("코스피 지수 데이터 및 종목별 수익률을 분석 중입니다... 잠시만 기다려주세요."):
+    with st.spinner(f"코스피 지수 데이터 및 {title_prefix} 수익률을 분석 중입니다... 잠시만 기다려주세요."):
         df_kospi = fdr.DataReader('KS11', start_date)
         
         kospi_returns = {}
@@ -88,7 +97,7 @@ def run_screener(selected_periods):
                     kospi_returns[p] = 0.0
 
         results = []
-        unique_tickers = list(set(DOMESTIC_STOCKS))
+        unique_tickers = list(set(target_list))
         
         progress_bar = st.progress(0)
         total_items = len(unique_tickers)
@@ -114,7 +123,6 @@ def run_screener(selected_periods):
                     row_data = {'종목코드': code}
                     for p in selected_periods:
                         row_data[f'{p}일 초과수익'] = diffs[p]
-                    # 정렬 기준 (가장 첫 번째 선택 기간의 초과수익률 기준 상위 정렬)
                     sort_key = selected_periods[0]
                     row_data['Recent_Score'] = diffs[sort_key]
                     results.append(row_data)
@@ -135,7 +143,7 @@ def run_screener(selected_periods):
         for col in ret_cols:
             display_df[col] = display_df[col].apply(lambda x: f"{x*100:+.2f}%")
             
-        st.success(f"분석 완료! 총 {len(results)}개의 강세 종목이 발굴되었습니다.")
+        st.success(f"[{title_prefix}] 분석 완료! 총 {len(results)}개의 강세 종목이 발굴되었습니다.")
         st.dataframe(display_df, use_container_width=True)
         
         # 텍스트 파일 다운로드 구성
@@ -156,19 +164,36 @@ def run_screener(selected_periods):
     else:
         st.warning("조건을 만족하는 종목이 없습니다.")
 
-# 버튼 클릭 이벤트 분기 처리
+# 버튼 클릭 이벤트 분기 처리 (전체 주식+ETF)
 if btn_all:
-    st.info("전체 기간(10, 30, 50, 100, 200일) 조건으로 스크리닝을 시작합니다.")
-    run_screener([10, 30, 50, 100, 200])
+    st.info("전체 기간(10, 30, 50, 100, 200일) 주식+ETF 스크리닝을 시작합니다.")
+    run_screener([10, 30, 50, 100, 200], DOMESTIC_STOCKS, "전체 주식+ETF")
 
 elif btn_short:
-    st.info("단기 집중(10일, 30일) 조건으로 스크리닝을 시작합니다.")
-    run_screener([10, 30])
+    st.info("단기 집중(10일, 30일) 주식+ETF 스크리닝을 시작합니다.")
+    run_screener([10, 30], DOMESTIC_STOCKS, "단기 주식+ETF")
 
 elif btn_mid:
-    st.info("중기 집중(50일, 100일) 조건으로 스크리닝을 시작합니다.")
-    run_screener([50, 100])
+    st.info("중기 집중(50일, 100일) 주식+ETF 스크리닝을 시작합니다.")
+    run_screener([50, 100], DOMESTIC_STOCKS, "중기 주식+ETF")
 
 elif btn_long:
-    st.info("장기 집중(200일) 조건으로 스크리닝을 시작합니다.")
-    run_screener([200])
+    st.info("장기 집중(200일) 주식+ETF 스크리닝을 시작합니다.")
+    run_screener([200], DOMESTIC_STOCKS, "장기 주식+ETF")
+
+# 버튼 클릭 이벤트 분기 처리 (ETF 전용)
+elif e_btn_all:
+    st.info("전체 기간(10, 30, 50, 100, 200일) ETF 전용 스크리닝을 시작합니다.")
+    run_screener([10, 30, 50, 100, 200], ETF_STOCKS, "전체 ETF 전용")
+
+elif e_btn_short:
+    st.info("단기 집중(10일, 30일) ETF 전용 스크리닝을 시작합니다.")
+    run_screener([10, 30], ETF_STOCKS, "단기 ETF 전용")
+
+elif e_btn_mid:
+    st.info("중기 집중(50일, 100일) ETF 전용 스크리닝을 시작합니다.")
+    run_screener([50, 100], ETF_STOCKS, "중기 ETF 전용")
+
+elif e_btn_long:
+    st.info("장기 집중(200일) ETF 전용 스크리닝을 시작합니다.")
+    run_screener([200], ETF_STOCKS, "장기 ETF 전용")
