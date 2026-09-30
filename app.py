@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📈 국내 및 미국 주식·ETF 상대 강세(Relative Strength) 스크리너")
+st.title("📈 국내 및 미국 주식·ETF 상대 강세(Relative Strength) 스크리너 📈")
 st.markdown("원하는 대상과 분석 기간을 선택하여 코스피, S&P 500, 나스닥 100 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
 
 # 1. 국내 전체 종목 리스트
