@@ -90,7 +90,7 @@ US_TOP_100 = [
 
 # --- UI 레이아웃 구성 ---
 
-st.subheader("📊 전체 국내 종목 (주식 + ETF) 스크리너")
+st.subheader("📊 전체 국내 종목 (200 주식 + 50 ETF) 스크리너")
 col1, col2, col3, col4 = st.columns(4)
 with col1: btn_all = st.button("🚀 전체기간 (주식+ETF)", type="primary")
 with col2: btn_short = st.button("⚡ 단기 10·30일 (주식+ETF)")
