@@ -1,10 +1,3 @@
-요청하신 대로 기존의 **10·30일** 단기 버튼은 그대로 유지하고, 독립적으로 분석할 수 있는 **5일** 버튼과 **10일** 버튼을 각각 추가했습니다.
-
-화면 배치를 6열(`st.columns(6)`)로 구성하여 전체기간, 5일, 10일, 10·30일, 50·100일, 200일 버튼이 한 줄에 깔끔하게 들어가도록 수정했습니다.
-
-수정된 전체 Streamlit 코드입니다:
-
-```python
 import streamlit as st
 import FinanceDataReader as fdr
 import pandas as pd
