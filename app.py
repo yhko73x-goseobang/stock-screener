@@ -13,6 +13,19 @@ st.set_page_config(
 st.title("📈 국내 및 미국 주식·ETF 상대 강세(Relative Strength) 스크리너")
 st.markdown("원하는 대상과 분석 기간을 선택하여 코스피, S&P 500, 나스닥 100 지수 대비 아웃퍼폼한 종목을 발굴하세요.")
 
+# --- 💡 종목코드 및 종목명 매핑 사전 ---
+# 주요 국내 주식 및 ETF 종목명 매핑 딕셔너리 (필요에 따라 계속 확장 가능)
+NAME_DICT = {
+    # 주요 국내 주식
+    "005930": "삼성전자", "000660": "SK하이닉스", "373220": "LG에너지솔루션", "207940": "삼성바이오로직스",
+    "005380": "현대차", "000270": "기아", "068270": "셀트리온", "105560": "KB금융", "005490": "POSCO홀딩스",
+    "035420": "NAVER", "055550": "신한지주", "028260": "삼성물산", "012330": "현대모비스", "006400": "삼성SDI",
+    "035720": "카카오", "086790": "하나금융지주", "051910": "LG화학", "032830": "삼성생명", "329180": "중견기업/현대오토에버등",
+    "066570": "LG전자", "148070": "KOSEF CD금리(AI초단기)", "360750": "TIGER 미국S&P500", "448290": "TIGER 미국테크TOP10",
+    "229200": "KODEX 코스닥150선물인버스", "069500": "KODEX 200", "102110": "TIGER 200", "091230": "KODEX 자동차",
+    "396500": "TIGER 미국배당다우존스", "435550": "KODEX 미국배당다우존스"
+}
+
 # --- 💡 결과 및 로딩바를 최상단에 보여주기 위한 컨테이너 ---
 result_container = st.container()
 
@@ -42,7 +55,7 @@ DOMESTIC_STOCKS = [
     "005850", "010690", "200880", "015750", "012200", "009900", "004410", "002350", "073240"
 ]
 
-# 한국 섹터 종목 리스트 (개별 종목 제외 완료)
+# 한국 섹터 종목 리스트
 SECTOR_ETFS = [
     "102110", "229200", "091230", "396500", "465640", "485520", "305540", "446770", "435550", "477570", 
     "480110", "091180", "138920", "143850", "226490", "458730", "285010", "091170", "102970", "139260", 
@@ -248,7 +261,9 @@ def run_screener(selected_periods, target_list, title_prefix, market_ticker='KS1
                             is_strong_all = False
                     
                     if is_strong_all:
-                        row_data = {'종목코드': code}
+                        # 종목코드와 종목명을 나란히 매핑
+                        stock_name = NAME_DICT.get(code, code) # 사전에 없으면 코드로 대체 표시
+                        row_data = {'종목코드': code, '종목명': stock_name}
                         for p in selected_periods:
                             row_data[f'{p}일 초과수익'] = diffs[p]
                         sort_key = selected_periods[0]
@@ -265,17 +280,17 @@ def run_screener(selected_periods, target_list, title_prefix, market_ticker='KS1
             df_result = df_result.sort_values(by='Recent_Score', ascending=False).reset_index(drop=True)
             display_df = df_result.drop(columns=['Recent_Score'])
             
-            ret_cols = [c for c in display_df.columns if c != '종목코드']
+            ret_cols = [c for c in display_df.columns if c not in ['종목코드', '종목명']]
             for col in ret_cols:
                 display_df[col] = display_df[col].apply(lambda x: f"{x*100:+.2f}%")
                 
             st.success(f"[{title_prefix}] 분석 완료! 총 {len(results)}개의 강세 종목이 발굴되었습니다.")
             st.dataframe(display_df, use_container_width=True)
             
-            txt_header = "종목코드\t" + "\t".join([f"{p}일초과" for p in selected_periods]) + "\n"
+            txt_header = "종목코드\t종목명\t" + "\t".join([f"{p}일초과" for p in selected_periods]) + "\n"
             txt_content = txt_header
             for _, row in df_result.iterrows():
-                line = f"{row['종목코드']}"
+                line = f"{row['종목코드']}\t{row['종목명']}"
                 for p in selected_periods:
                     line += f"\t{row[f'{p}일 초과수익']*100:.2f}%"
                 txt_content += line + "\n"
