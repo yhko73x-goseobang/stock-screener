@@ -42,7 +42,7 @@ DOMESTIC_STOCKS = [
     "005850", "010690", "200880", "015750", "012200", "009900", "004410", "002350", "073240"
 ]
 
-# 한국 섹터 종목 리스트
+# 한국 섹터 종목 리스트 (개별 종목 제외 완료)
 SECTOR_ETFS = [
     "102110", "229200", "091230", "396500", "465640", "485520", "305540", "446770", "435550", "477570", 
     "480110", "091180", "138920", "143850", "226490", "458730", "285010", "091170", "102970", "139260", 
@@ -50,10 +50,10 @@ SECTOR_ETFS = [
     "139250", "138530", "102780", "139310", "292150", "364980", "161510", "211900", "143160", "228780", 
     "228800", "228810", "381420", "448290", "435570", "266420", "157450", "226480", "226500", "226510", 
     "069500", "229210", "091160", "469590", "305720", "453650", "469080", "477580", "091190", "117700", 
-    "244580", "091120", "102710", "117460", "091220", "266390", "266370", "117690", "117680", "117420", 
-    "117720", "117480", "117470", "244570", "102790", "138910", "287310", "289670", "211910", "105190", 
-    "228750", "228770", "228760", "228820", "438410", "381430", "445220", "403560", "396510", "431290", 
-    "139230", "229720", "285020", "285030", "389810", "435560", "117560", "289680", "244560", "295550"
+    "244580", "117460", "091220", "266390", "266370", "117690", "117680", "117420", "117720", "117480", 
+    "117470", "244570", "102790", "138910", "287310", "289670", "211910", "105190", "228750", "228770", 
+    "228820", "438410", "381430", "445220", "403560", "396510", "431290", "139230", "229720", "285020", 
+    "285030", "389810", "435560", "117560", "289680", "244560", "295550"
 ]
 
 # ETF 파일별 리스트
@@ -92,7 +92,7 @@ ETF_FILE_5 = [
 ]
 ALL_ETFS = list(set(ETF_FILE_1 + ETF_FILE_2 + ETF_FILE_3 + ETF_FILE_4 + ETF_FILE_5))
 
-# 3. 미국 상위 100대 기업 티커 리스트
+# 미국 상위 100대 기업 티커 리스트
 US_TOP_100 = [
     "NVDA", "AAPL", "MSFT", "AMZN", "GOOGL", "GOOG", "META", "AVGO", "TSLA", "MU", 
     "LLY", "JPM", "WMT", "AMD", "BRK.B", "V", "XOM", "JNJ", "INTC", "MA", 
@@ -107,83 +107,100 @@ US_TOP_100 = [
 ]
 
 
-# --- UI 레이아웃 구성 ---
+# --- UI 레이아웃 구성 (9열 설정) ---
 
 st.subheader("📊 전체 국내 종목 (주식 + ETF) 스크리너")
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-with col1: btn_all = st.button("🚀 전체기간 (주식+ETF)", type="primary")
-with col2: btn_5 = st.button("🔥 5일 (주식+ETF)")
-with col3: btn_10 = st.button("⚡ 10일 (주식+ETF)")
-with col4: btn_short = st.button("⚡ 10·30일 (주식+ETF)")
-with col5: btn_mid = st.button("🔍 50·100일 (주식+ETF)")
-with col6: btn_long = st.button("🐢 장기 200일 (주식+ETF)")
+c1, c2, c3, c4, c5, c6, c7, c8, c9 = st.columns(9)
+with c1: btn_all = st.button("🚀 전체", key="d_all", type="primary")
+with c2: btn_1 = st.button("🔥 1일", key="d_1")
+with c3: btn_2 = st.button("🔥 2일", key="d_2")
+with c4: btn_3 = st.button("🔥 3일", key="d_3")
+with c5: btn_4 = st.button("🔥 4일", key="d_4")
+with c6: btn_5 = st.button("🔥 5일", key="d_5")
+with c7: btn_short = st.button("⚡ 10·30일", key="d_short")
+with c8: btn_mid = st.button("🔍 50·100일", key="d_mid")
+with c9: btn_long = st.button("🐢 장기", key="d_long")
 
 st.markdown("---")
 
 st.subheader("📊 한국 섹터 종목 스크리너")
-sec_col1, sec_col2, sec_col3, sec_col4, sec_col5, sec_col6 = st.columns(6)
-with sec_col1: sec_btn_all = st.button("🚀 전체기간 (한국섹터)")
-with sec_col2: sec_btn_5 = st.button("🔥 5일 (한국섹터)")
-with sec_col3: sec_btn_10 = st.button("⚡ 10일 (한국섹터)")
-with sec_col4: sec_btn_short = st.button("⚡ 10·30일 (한국섹터)")
-with sec_col5: sec_btn_mid = st.button("🔍 50·100일 (한국섹터)")
-with sec_col6: sec_btn_long = st.button("🐢 장기 200일 (한국섹터)")
+sc1, sc2, sc3, sc4, sc5, sc6, sc7, sc8, sc9 = st.columns(9)
+with sc1: sec_btn_all = st.button("🚀 전체", key="s_all")
+with sc2: sec_btn_1 = st.button("🔥 1일", key="s_1")
+with sc3: sec_btn_2 = st.button("🔥 2일", key="s_2")
+with sc4: sec_btn_3 = st.button("🔥 3일", key="s_3")
+with sc5: sec_btn_4 = st.button("🔥 4일", key="s_4")
+with sc6: sec_btn_5 = st.button("🔥 5일", key="s_5")
+with sc7: sec_btn_short = st.button("⚡ 10·30일", key="s_short")
+with sc8: sec_btn_mid = st.button("🔍 50·100일", key="s_mid")
+with sc9: sec_btn_long = st.button("🐢 장기", key="s_long")
 
 st.markdown("---")
 
-# 미국 상위 100대 기업 스크리너 세션 (S&P 500 및 나스닥 100 기준)
 st.subheader("🇺🇸 미국 상위 100대 기업 상대 강세 스크리너")
 
 st.markdown("**[S&P 500 지수 대비 강세 종목]**")
-us1_all, us1_5, us1_10, us1_short, us1_mid, us1_long = st.columns(6)
-with us1_all: us_sp_all = st.button("🚀 전체기간 (vs S&P500)", key="us_sp_all")
-with us1_5: us_sp_5 = st.button("🔥 5일 (vs S&P500)", key="us_sp_5")
-with us1_10: us_sp_10 = st.button("⚡ 10일 (vs S&P500)", key="us_sp_10")
-with us1_short: us_sp_short = st.button("⚡ 10·30일 (vs S&P500)", key="us_sp_short")
-with us1_mid: us_sp_mid = st.button("🔍 50·100일 (vs S&P500)", key="us_sp_mid")
-with us1_long: us_sp_long = st.button("🐢 200일 (vs S&P500)", key="us_sp_long")
+us1_c1, us1_c2, us1_c3, us1_c4, us1_c5, us1_c6, us1_c7, us1_c8, us1_c9 = st.columns(9)
+with us1_c1: us_sp_all = st.button("🚀 전체", key="us_sp_all")
+with us1_c2: us_sp_1 = st.button("🔥 1일", key="us_sp_1")
+with us1_c3: us_sp_2 = st.button("🔥 2일", key="us_sp_2")
+with us1_c4: us_sp_3 = st.button("🔥 3일", key="us_sp_3")
+with us1_c5: us_sp_4 = st.button("🔥 4일", key="us_sp_4")
+with us1_c6: us_sp_5 = st.button("🔥 5일", key="us_sp_5")
+with us1_c7: us_sp_short = st.button("⚡ 10·30일", key="us_sp_short")
+with us1_c8: us_sp_mid = st.button("🔍 50·100일", key="us_sp_mid")
+with us1_c9: us_sp_long = st.button("🐢 장기", key="us_sp_long")
 
 st.markdown("")
 st.markdown("**[나스닥 100 지수 대비 강세 종목]**")
-us2_all, us2_5, us2_10, us2_short, us2_mid, us2_long = st.columns(6)
-with us2_all: us_nd_all = st.button("🚀 전체기간 (vs Nasdaq100)", key="us_nd_all")
-with us2_5: us_nd_5 = st.button("🔥 5일 (vs Nasdaq100)", key="us_nd_5")
-with us2_10: us_nd_10 = st.button("⚡ 10일 (vs Nasdaq100)", key="us_nd_10")
-with us2_short: us_nd_short = st.button("⚡ 10·30일 (vs Nasdaq100)", key="us_nd_short")
-with us2_mid: us_nd_mid = st.button("🔍 50·100일 (vs Nasdaq100)", key="us_nd_mid")
-with us2_long: us_nd_long = st.button("🐢 200일 (vs Nasdaq100)", key="us_nd_long")
+us2_c1, us2_c2, us2_c3, us2_c4, us2_c5, us2_c6, us2_c7, us2_c8, us2_c9 = st.columns(9)
+with us2_c1: us_nd_all = st.button("🚀 전체", key="us_nd_all")
+with us2_c2: us_nd_1 = st.button("🔥 1일", key="us_nd_1")
+with us2_c3: us_nd_2 = st.button("🔥 2일", key="us_nd_2")
+with us2_c4: us_nd_3 = st.button("🔥 3일", key="us_nd_3")
+with us2_c5: us_nd_4 = st.button("🔥 4일", key="us_nd_4")
+with us2_c6: us_nd_5 = st.button("🔥 5일", key="us_nd_5")
+with us2_c7: us_nd_short = st.button("⚡ 10·30일", key="us_nd_short")
+with us2_c8: us_nd_mid = st.button("🔍 50·100일", key="us_nd_mid")
+with us2_c9: us_nd_long = st.button("🐢 장기", key="us_nd_long")
 
 st.markdown("---")
 
 st.subheader("🎯 전체 ETF 통합 전용 스크리너")
-ecol1, ecol2, ecol3, ecol4, ecol5, ecol6 = st.columns(6)
-with ecol1: e_btn_all = st.button("🚀 전체기간 (통합ETF)")
-with ecol2: e_btn_5 = st.button("🔥 5일 (통합ETF)")
-with ecol3: e_btn_10 = st.button("⚡ 10일 (통합ETF)")
-with ecol4: e_btn_short = st.button("⚡ 10·30일 (통합ETF)")
-with ecol5: e_btn_mid = st.button("🔍 50·100일 (통합ETF)")
-with ecol6: e_btn_long = st.button("🐢 장기 200일 (통합ETF)")
+ec1, ec2, ec3, ec4, ec5, ec6, ec7, ec8, ec9 = st.columns(9)
+with ec1: e_btn_all = st.button("🚀 전체", key="e_all")
+with ec2: e_btn_1 = st.button("🔥 1일", key="e_1")
+with ec3: e_btn_2 = st.button("🔥 2일", key="e_2")
+with ec4: e_btn_3 = st.button("🔥 3일", key="e_3")
+with ec5: e_btn_4 = st.button("🔥 4일", key="e_4")
+with ec6: e_btn_5 = st.button("🔥 5일", key="e_5")
+with ec7: e_btn_short = st.button("⚡ 10·30일", key="e_short")
+with ec8: e_btn_mid = st.button("🔍 50·100일", key="e_mid")
+with ec9: e_btn_long = st.button("🐢 장기", key="e_long")
 
 st.markdown("---")
 
 st.subheader("📂 파일별 개별 ETF 그룹 스크리너")
 def render_file_section(title, file_key):
     st.markdown(f"**[{title}]**")
-    b1, b2, b3, b4, b5, b6 = st.columns(6)
+    b1, b2, b3, b4, b5, b6, b7, b8, b9 = st.columns(9)
     with b1: bt_all = st.button("🚀 전체", key=f"{file_key}_all")
-    with b2: bt_5 = st.button("🔥 5일", key=f"{file_key}_5")
-    with b3: bt_10 = st.button("⚡ 10일", key=f"{file_key}_10")
-    with b4: bt_short = st.button("⚡ 10·30일", key=f"{file_key}_short")
-    with b5: bt_mid = st.button("🔍 50·100일", key=f"{file_key}_mid")
-    with b6: bt_long = st.button("🐢 200일", key=f"{file_key}_long")
+    with b2: bt_1 = st.button("🔥 1일", key=f"{file_key}_1")
+    with b3: bt_2 = st.button("🔥 2일", key=f"{file_key}_2")
+    with b4: bt_3 = st.button("🔥 3일", key=f"{file_key}_3")
+    with b5: bt_4 = st.button("🔥 4일", key=f"{file_key}_4")
+    with b6: bt_5 = st.button("🔥 5일", key=f"{file_key}_5")
+    with b7: bt_short = st.button("⚡ 10·30일", key=f"{file_key}_short")
+    with b8: bt_mid = st.button("🔍 50·100일", key=f"{file_key}_mid")
+    with b9: bt_long = st.button("🐢 장기", key=f"{file_key}_long")
     st.markdown("")
-    return bt_all, bt_5, bt_10, bt_short, bt_mid, bt_long
+    return bt_all, bt_1, bt_2, bt_3, bt_4, bt_5, bt_short, bt_mid, bt_long
 
-f1_all, f1_5, f1_10, f1_short, f1_mid, f1_long = render_file_section("1. 국가별 대표지수", "f1")
-f2_all, f2_5, f2_10, f2_short, f2_mid, f2_long = render_file_section("2. 혁신성장테마", "f2")
-f3_all, f3_5, f3_10, f3_short, f3_mid, f3_long = render_file_section("3. 국가별 섹터", "f3")
-f4_all, f4_5, f4_10, f4_short, f4_mid, f4_long = render_file_section("4. 안전형인컴형", "f4")
-f5_all, f5_5, f5_10, f5_short, f5_mid, f5_long = render_file_section("5. 원자재·부동산·통화", "f5")
+f1_all, f1_1, f1_2, f1_3, f1_4, f1_5, f1_short, f1_mid, f1_long = render_file_section("1. 국가별 대표지수", "f1")
+f2_all, f2_1, f2_2, f2_3, f2_4, f2_5, f2_short, f2_mid, f2_long = render_file_section("2. 혁신성장테마", "f2")
+f3_all, f3_1, f3_2, f3_3, f3_4, f3_5, f3_short, f3_mid, f3_long = render_file_section("3. 국가별 섹터", "f3")
+f4_all, f4_1, f4_2, f4_3, f4_4, f4_5, f4_short, f4_mid, f4_long = render_file_section("4. 안전형인컴형", "f4")
+f5_all, f5_1, f5_2, f5_3, f5_4, f5_5, f5_short, f5_mid, f5_long = render_file_section("5. 원자재·부동산·통화", "f5")
 
 
 # 공통 실행 함수
@@ -273,80 +290,110 @@ def run_screener(selected_periods, target_list, title_prefix, market_ticker='KS1
             st.warning("조건을 만족하는 종목이 없습니다.")
 
 
-# --- 버튼 클릭 이벤트 분기 처리 (5일, 10일 개별 추가 및 기존 10·30일 유지) ---
+# --- 버튼 클릭 이벤트 분기 처리 ---
 
 # 국내 주식+ETF
 if btn_all: run_screener([10, 30, 50, 100, 200], DOMESTIC_STOCKS, "전체 주식+ETF (전체기간)", 'KS11')
+elif btn_1: run_screener([1], DOMESTIC_STOCKS, "전체 주식+ETF (1일)", 'KS11')
+elif btn_2: run_screener([2], DOMESTIC_STOCKS, "전체 주식+ETF (2일)", 'KS11')
+elif btn_3: run_screener([3], DOMESTIC_STOCKS, "전체 주식+ETF (3일)", 'KS11')
+elif btn_4: run_screener([4], DOMESTIC_STOCKS, "전체 주식+ETF (4일)", 'KS11')
 elif btn_5: run_screener([5], DOMESTIC_STOCKS, "전체 주식+ETF (5일)", 'KS11')
-elif btn_10: run_screener([10], DOMESTIC_STOCKS, "전체 주식+ETF (10일)", 'KS11')
 elif btn_short: run_screener([10, 30], DOMESTIC_STOCKS, "전체 주식+ETF (10·30일)", 'KS11')
 elif btn_mid: run_screener([50, 100], DOMESTIC_STOCKS, "전체 주식+ETF (중기)", 'KS11')
 elif btn_long: run_screener([200], DOMESTIC_STOCKS, "전체 주식+ETF (장기)", 'KS11')
 
 # 한국 섹터 종목
 elif sec_btn_all: run_screener([10, 30, 50, 100, 200], SECTOR_ETFS, "한국 섹터 종목 (전체기간)", 'KS11')
+elif sec_btn_1: run_screener([1], SECTOR_ETFS, "한국 섹터 종목 (1일)", 'KS11')
+elif sec_btn_2: run_screener([2], SECTOR_ETFS, "한국 섹터 종목 (2일)", 'KS11')
+elif sec_btn_3: run_screener([3], SECTOR_ETFS, "한국 섹터 종목 (3일)", 'KS11')
+elif sec_btn_4: run_screener([4], SECTOR_ETFS, "한국 섹터 종목 (4일)", 'KS11')
 elif sec_btn_5: run_screener([5], SECTOR_ETFS, "한국 섹터 종목 (5일)", 'KS11')
-elif sec_btn_10: run_screener([10], SECTOR_ETFS, "한국 섹터 종목 (10일)", 'KS11')
 elif sec_btn_short: run_screener([10, 30], SECTOR_ETFS, "한국 섹터 종목 (10·30일)", 'KS11')
 elif sec_btn_mid: run_screener([50, 100], SECTOR_ETFS, "한국 섹터 종목 (중기)", 'KS11')
 elif sec_btn_long: run_screener([200], SECTOR_ETFS, "한국 섹터 종목 (장기)", 'KS11')
 
 # 미국 상위 100대 기업 (S&P 500 대비)
 elif us_sp_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs S&P 500 전체기간)", 'S&P500')
+elif us_sp_1: run_screener([1], US_TOP_100, "미국 상위 100 (vs S&P 500 1일)", 'S&P500')
+elif us_sp_2: run_screener([2], US_TOP_100, "미국 상위 100 (vs S&P 500 2일)", 'S&P500')
+elif us_sp_3: run_screener([3], US_TOP_100, "미국 상위 100 (vs S&P 500 3일)", 'S&P500')
+elif us_sp_4: run_screener([4], US_TOP_100, "미국 상위 100 (vs S&P 500 4일)", 'S&P500')
 elif us_sp_5: run_screener([5], US_TOP_100, "미국 상위 100 (vs S&P 500 5일)", 'S&P500')
-elif us_sp_10: run_screener([10], US_TOP_100, "미국 상위 100 (vs S&P 500 10일)", 'S&P500')
 elif us_sp_short: run_screener([10, 30], US_TOP_100, "미국 상위 100 (vs S&P 500 10·30일)", 'S&P500')
 elif us_sp_mid: run_screener([50, 100], US_TOP_100, "미국 상위 100 (vs S&P 500 중기)", 'S&P500')
 elif us_sp_long: run_screener([200], US_TOP_100, "미국 상위 100 (vs S&P 500 장기)", 'S&P500')
 
 # 미국 상위 100대 기업 (나스닥 100 대비)
 elif us_nd_all: run_screener([10, 30, 50, 100, 200], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 전체기간)", '^NDX')
+elif us_nd_1: run_screener([1], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 1일)", '^NDX')
+elif us_nd_2: run_screener([2], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 2일)", '^NDX')
+elif us_nd_3: run_screener([3], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 3일)", '^NDX')
+elif us_nd_4: run_screener([4], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 4일)", '^NDX')
 elif us_nd_5: run_screener([5], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 5일)", '^NDX')
-elif us_nd_10: run_screener([10], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 10일)", '^NDX')
 elif us_nd_short: run_screener([10, 30], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 10·30일)", '^NDX')
 elif us_nd_mid: run_screener([50, 100], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 중기)", '^NDX')
 elif us_nd_long: run_screener([200], US_TOP_100, "미국 상위 100 (vs Nasdaq 100 장기)", '^NDX')
 
 # 통합 ETF 전용
 elif e_btn_all: run_screener([10, 30, 50, 100, 200], ALL_ETFS, "통합 ETF (전체기간)", 'KS11')
+elif e_btn_1: run_screener([1], ALL_ETFS, "통합 ETF (1일)", 'KS11')
+elif e_btn_2: run_screener([2], ALL_ETFS, "통합 ETF (2일)", 'KS11')
+elif e_btn_3: run_screener([3], ALL_ETFS, "통합 ETF (3일)", 'KS11')
+elif e_btn_4: run_screener([4], ALL_ETFS, "통합 ETF (4일)", 'KS11')
 elif e_btn_5: run_screener([5], ALL_ETFS, "통합 ETF (5일)", 'KS11')
-elif e_btn_10: run_screener([10], ALL_ETFS, "통합 ETF (10일)", 'KS11')
 elif e_btn_short: run_screener([10, 30], ALL_ETFS, "통합 ETF (10·30일)", 'KS11')
 elif e_btn_mid: run_screener([50, 100], ALL_ETFS, "통합 ETF (중기)", 'KS11')
 elif e_btn_long: run_screener([200], ALL_ETFS, "통합 ETF (장기)", 'KS11')
 
 # 파일 1~5 그룹
 elif f1_all: run_screener([10, 30, 50, 100, 200], ETF_FILE_1, "국가별 대표지수 (전체기간)", 'KS11')
+elif f1_1: run_screener([1], ETF_FILE_1, "국가별 대표지수 (1일)", 'KS11')
+elif f1_2: run_screener([2], ETF_FILE_1, "국가별 대표지수 (2일)", 'KS11')
+elif f1_3: run_screener([3], ETF_FILE_1, "국가별 대표지수 (3일)", 'KS11')
+elif f1_4: run_screener([4], ETF_FILE_1, "국가별 대표지수 (4일)", 'KS11')
 elif f1_5: run_screener([5], ETF_FILE_1, "국가별 대표지수 (5일)", 'KS11')
-elif f1_10: run_screener([10], ETF_FILE_1, "국가별 대표지수 (10일)", 'KS11')
 elif f1_short: run_screener([10, 30], ETF_FILE_1, "국가별 대표지수 (10·30일)", 'KS11')
 elif f1_mid: run_screener([50, 100], ETF_FILE_1, "국가별 대표지수 (중기)", 'KS11')
 elif f1_long: run_screener([200], ETF_FILE_1, "국가별 대표지수 (장기)", 'KS11')
 
 elif f2_all: run_screener([10, 30, 50, 100, 200], ETF_FILE_2, "혁신성장테마 (전체기간)", 'KS11')
+elif f2_1: run_screener([1], ETF_FILE_2, "혁신성장테마 (1일)", 'KS11')
+elif f2_2: run_screener([2], ETF_FILE_2, "혁신성장테마 (2일)", 'KS11')
+elif f2_3: run_screener([3], ETF_FILE_2, "혁신성장테마 (3일)", 'KS11')
+elif f2_4: run_screener([4], ETF_FILE_2, "혁신성장테마 (4일)", 'KS11')
 elif f2_5: run_screener([5], ETF_FILE_2, "혁신성장테마 (5일)", 'KS11')
-elif f2_10: run_screener([10], ETF_FILE_2, "혁신성장테마 (10일)", 'KS11')
 elif f2_short: run_screener([10, 30], ETF_FILE_2, "혁신성장테마 (10·30일)", 'KS11')
 elif f2_mid: run_screener([50, 100], ETF_FILE_2, "혁신성장테마 (중기)", 'KS11')
 elif f2_long: run_screener([200], ETF_FILE_2, "혁신성장테마 (장기)", 'KS11')
 
 elif f3_all: run_screener([10, 30, 50, 100, 200], ETF_FILE_3, "국가별 섹터 (전체기간)", 'KS11')
+elif f3_1: run_screener([1], ETF_FILE_3, "국가별 섹터 (1일)", 'KS11')
+elif f3_2: run_screener([2], ETF_FILE_3, "국가별 섹터 (2일)", 'KS11')
+elif f3_3: run_screener([3], ETF_FILE_3, "국가별 섹터 (3일)", 'KS11')
+elif f3_4: run_screener([4], ETF_FILE_3, "국가별 섹터 (4일)", 'KS11')
 elif f3_5: run_screener([5], ETF_FILE_3, "국가별 섹터 (5일)", 'KS11')
-elif f3_10: run_screener([10], ETF_FILE_3, "국가별 섹터 (10일)", 'KS11')
 elif f3_short: run_screener([10, 30], ETF_FILE_3, "국가별 섹터 (10·30일)", 'KS11')
 elif f3_mid: run_screener([50, 100], ETF_FILE_3, "국가별 섹터 (중기)", 'KS11')
 elif f3_long: run_screener([200], ETF_FILE_3, "국가별 섹터 (장기)", 'KS11')
 
 elif f4_all: run_screener([10, 30, 50, 100, 200], ETF_FILE_4, "안전형인컴형 (전체기간)", 'KS11')
+elif f4_1: run_screener([1], ETF_FILE_4, "안전형인컴형 (1일)", 'KS11')
+elif f4_2: run_screener([2], ETF_FILE_4, "안전형인컴형 (2일)", 'KS11')
+elif f4_3: run_screener([3], ETF_FILE_4, "안전형인컴형 (3일)", 'KS11')
+elif f4_4: run_screener([4], ETF_FILE_4, "안전형인컴형 (4일)", 'KS11')
 elif f4_5: run_screener([5], ETF_FILE_4, "안전형인컴형 (5일)", 'KS11')
-elif f4_10: run_screener([10], ETF_FILE_4, "안전형인컴형 (10일)", 'KS11')
 elif f4_short: run_screener([10, 30], ETF_FILE_4, "안전형인컴형 (10·30일)", 'KS11')
 elif f4_mid: run_screener([50, 100], ETF_FILE_4, "안전형인컴형 (중기)", 'KS11')
 elif f4_long: run_screener([200], ETF_FILE_4, "안전형인컴형 (장기)", 'KS11')
 
 elif f5_all: run_screener([10, 30, 50, 100, 200], ETF_FILE_5, "원자재·부동산·통화 (전체기간)", 'KS11')
+elif f5_1: run_screener([1], ETF_FILE_5, "원자재·부동산·통화 (1일)", 'KS11')
+elif f5_2: run_screener([2], ETF_FILE_5, "원자재·부동산·통화 (2일)", 'KS11')
+elif f5_3: run_screener([3], ETF_FILE_5, "원자재·부동산·통화 (3일)", 'KS11')
+elif f5_4: run_screener([4], ETF_FILE_5, "원자재·부동산·통화 (4일)", 'KS11')
 elif f5_5: run_screener([5], ETF_FILE_5, "원자재·부동산·통화 (5일)", 'KS11')
-elif f5_10: run_screener([10], ETF_FILE_5, "원자재·부동산·통화 (10일)", 'KS11')
 elif f5_short: run_screener([10, 30], ETF_FILE_5, "원자재·부동산·통화 (10·30일)", 'KS11')
 elif f5_mid: run_screener([50, 100], ETF_FILE_5, "원자재·부동산·통화 (중기)", 'KS11')
 elif f5_long: run_screener([200], ETF_FILE_5, "원자재·부동산·통화 (장기)", 'KS11')
