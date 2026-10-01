@@ -357,5 +357,3 @@ elif f5_10: run_screener([10], ETF_FILE_5, "원자재·부동산·통화 (10일)
 elif f5_short: run_screener([10, 30], ETF_FILE_5, "원자재·부동산·통화 (10·30일)", 'KS11')
 elif f5_mid: run_screener([50, 100], ETF_FILE_5, "원자재·부동산·통화 (중기)", 'KS11')
 elif f5_long: run_screener([200], ETF_FILE_5, "원자재·부동산·통화 (장기)", 'KS11')
-
-```
